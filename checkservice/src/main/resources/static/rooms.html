@@ -45,7 +45,7 @@
         let bookedRoomIds = [];
     
         // ดึงรายการห้องที่ถูกจองวันนี้
-        fetch("/bookings/today")
+        fetch("http://localhost:8080/bookings/today")
             .then(response => response.json())
             .then(data => {
                 bookedRoomIds = data;
@@ -53,7 +53,7 @@
             });
     
         function loadRooms() {
-            fetch("/rooms")
+            fetch("http://localhost:8080/rooms")
                 .then(response => response.json())
                 .then(data => {
                     const tableBody = document.querySelector("#roomTable tbody");

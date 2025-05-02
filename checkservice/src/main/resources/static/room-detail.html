@@ -95,7 +95,7 @@
     ];
 
     // แสดงรายละเอียดห้อง
-    fetch(`/rooms/${roomId}`)
+    fetch(`http://localhost:8080/rooms/${roomId}`)
       .then(res => res.json())
       .then(room => {
         document.getElementById("roomDetail").innerHTML = `

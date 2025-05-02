@@ -117,7 +117,7 @@
     document.getElementById("dateText").textContent = date;
     document.getElementById("timeText").textContent = `${startTime} – ${endTime}`;
 
-    fetch(`/rooms/${roomId}`)
+    fetch(`http://localhost:8080/rooms/${roomId}`)
       .then(res => res.json())
       .then(room => {
         document.getElementById("roomName").textContent = room.name;

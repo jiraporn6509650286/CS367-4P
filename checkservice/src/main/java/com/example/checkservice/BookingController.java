@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/bookings")
-@CrossOrigin
+@CrossOrigin("*")
 public class BookingController {
 
     private final BookingRepository repository;
