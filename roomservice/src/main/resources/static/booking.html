@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>ยืนยันการจองห้อง</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f9f9f9;
+      padding: 2rem;
+    }
+
+    .card {
+      max-width: 500px;
+      margin: auto;
+      background-color: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+      color: #333;
+    }
+
+    .info {
+      margin-bottom: 1.5rem;
+    }
+
+    .info p {
+      margin: 0.3rem 0;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 1rem;
+      margin-bottom: 0.3rem;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 0.6rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    button {
+      margin-top: 1.5rem;
+      padding: 0.6rem 1.2rem;
+      background-color: #1a73e8;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    button:hover {
+      background-color: #0d5dc3;
+    }
+
+    .message {
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+
+    .success {
+      color: green;
+    }
+
+    .error {
+      color: red;
+    }
+
+    a.back-link {
+      display: inline-block;
+      margin-top: 1rem;
+      text-decoration: none;
+      color: #555;
+    }
+
+    a.back-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>ยืนยันการจองห้อง</h1>
+    <div class="info">
+      <p><strong>ชื่อห้อง:</strong> <span id="roomName">กำลังโหลด...</span></p>
+      <p><strong>วันที่:</strong> <span id="dateText"></span></p>
+      <p><strong>เวลา:</strong> <span id="timeText"></span></p>
+    </div>
+
+    <label for="studentId">เลขนักศึกษา:</label>
+    <input type="text" id="studentId" placeholder="กรอกเลขนักศึกษา">
+
+    <button onclick="submitBooking()">ยืนยันการจอง</button>
+    <p class="message" id="message"></p>
+
+    <a class="back-link" href="/index.html">← กลับหน้าหลัก</a>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const roomId = params.get("roomId");
+    const date = params.get("date");
+    const startTime = params.get("startTime");
+    const endTime = params.get("endTime");
+
+    document.getElementById("dateText").textContent = date;
+    document.getElementById("timeText").textContent = `${startTime} – ${endTime}`;
+
+    fetch(`/rooms/${roomId}`)
+      .then(res => res.json())
+      .then(room => {
+        document.getElementById("roomName").textContent = room.name;
+      });
+
+    function submitBooking() {
+      const studentId = document.getElementById("studentId").value.trim();
+      if (!studentId) {
+        showMessage("กรุณากรอกเลขนักศึกษา", "error");
+        return;
+      }
+
+      const booking = {
+        roomId: parseInt(roomId),
+        userName: studentId,
+        date: date,
+        startTime: startTime,
+        endTime: endTime
+      };
+
+      fetch("http://localhost:8081/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(booking)
+      })
+      .then(res => {
+        if (res.ok) {
+          showMessage("✅ จองสำเร็จ!", "success");
+        } else {
+          res.text().then(text => showMessage("❌ จองไม่สำเร็จ: " + text, "error"));
+        }
+      })
+      .catch(err => {
+        showMessage("❌ เกิดข้อผิดพลาด: " + err.message, "error");
+      });
+    }
+
+    function showMessage(text, type) {
+      const msg = document.getElementById("message");
+      msg.textContent = text;
+      msg.className = "message " + type;
+    }
+  </script>
+</body>
+</html>

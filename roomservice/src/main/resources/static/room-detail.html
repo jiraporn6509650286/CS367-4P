@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>รายละเอียดห้อง</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      padding: 2rem;
+      background-color: #f8f8f8;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin-bottom: 1rem;
+    }
+
+    .info p {
+      margin: 0.5rem 0;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .tag {
+      background-color: #eeeeee;
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+    }
+
+    .slot-buttons {
+      margin-top: 2rem;
+    }
+
+    .slot-buttons button {
+      margin: 0.5rem 0.5rem 0 0;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      border: none;
+      background-color: #1a73e8;
+      color: white;
+      cursor: pointer;
+    }
+
+    .slot-buttons button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    .btn-back {
+      display: inline-block;
+      margin-top: 2rem;
+      background-color: #888;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>รายละเอียดห้อง</h1>
+    <div id="roomDetail" class="info">กำลังโหลดข้อมูล...</div>
+
+    <h2 style="margin-top: 2rem;">เลือกช่วงเวลาจอง (วันนี้)</h2>
+    <div class="slot-buttons" id="slotButtons">กำลังโหลด slot...</div>
+
+    <a href="/index.html" class="btn-back">← กลับหน้าหลัก</a>
+  </div>
+
+  <script>
+    const roomId = new URLSearchParams(window.location.search).get("id");
+    const today = new Date().toISOString().slice(0, 10); // yyyy-mm-dd
+    const slots = [
+      { start: "09:00", end: "12:00" },
+      { start: "12:00", end: "15:00" },
+      { start: "15:00", end: "18:00" },
+      { start: "18:00", end: "21:00" }
+    ];
+
+    // แสดงรายละเอียดห้อง
+    fetch(`/rooms/${roomId}`)
+      .then(res => res.json())
+      .then(room => {
+        document.getElementById("roomDetail").innerHTML = `
+          <p><strong>ชื่อห้อง:</strong> ${room.name}</p>
+          <p><strong>ขนาด:</strong> ${room.size}</p>
+          <p><strong>ความจุ:</strong> ${room.capacity} คน</p>
+          
+          <p><strong>สิ่งอำนวยความสะดวก:</strong></p>
+          <div class="tags">${room.amenities.map(a => `<div class="tag">${a}</div>`).join("")}</div>
+        `;
+      });
+
+    // โหลดการจองวันนี้ เพื่อตรวจสอบ slot ที่ถูกจองไปแล้ว
+    fetch(`http://localhost:8081/bookings/by-room?roomId=${roomId}&date=${today}`)
+      .then(res => res.json())
+      .then(bookings => {
+        const container = document.getElementById("slotButtons");
+        container.innerHTML = "";
+
+        slots.forEach(slot => {
+    const isBooked = bookings.some(b => {
+        const start = b.startTime.slice(0, 5); // "09:00:00" → "09:00"
+        const end = b.endTime.slice(0, 5);     // "12:00:00" → "12:00"
+        return start < slot.end && end > slot.start;
+    });
+
+    const btn = document.createElement("button");
+    btn.textContent = `${slot.start} – ${slot.end}`;
+    btn.disabled = isBooked;
+
+    if (!isBooked) {
+        btn.onclick = () => {
+        const url = `/booking.html?roomId=${roomId}&date=${today}&startTime=${slot.start}&endTime=${slot.end}`;
+        window.location.href = url;
+        };
+    }
+
+    container.appendChild(btn);
+});
+
+      });
+  </script>
+</body>
+</html>

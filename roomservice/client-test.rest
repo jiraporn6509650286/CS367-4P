@@ -1,0 +1,46 @@
+### ดึงข้อมูลห้องทั้งหมด
+GET http://localhost:8080/rooms
+
+
+### เพิ่มห้องใหม่
+POST http://localhost:8080/rooms
+Content-Type: application/json
+
+{
+  "name": "Study Room 1",
+  "size": "4x4",
+  "capacity": 6,
+  "status": "available",
+  "amenities": ["wifi", "whiteboard", "air conditioning"]
+}
+
+### เพิ่มห้องใหม่
+POST http://localhost:8080/rooms
+Content-Type: application/json
+
+{
+  "name": "Meeting Room A",
+  "size": "5x5",
+  "capacity": 10,
+  "status": "available",
+  "amenities": ["projector", "conference phone", "wifi"]
+}
+
+### ดึงข้อมูลห้อง ID ที่ 1
+GET http://localhost:8080/rooms/1
+
+
+### อัปเดตข้อมูลห้อง ID ที่ 1
+PUT http://localhost:8080/rooms/1
+Content-Type: application/json
+
+{
+  "name": "Study Room 1 - Updated",
+  "size": "4x5",
+  "capacity": 8,
+  "status": "available",
+  "amenities": ["wifi", "whiteboard"]
+}
+
+### ลบห้อง ID ที่ 3
+DELETE http://localhost:8080/rooms/3
